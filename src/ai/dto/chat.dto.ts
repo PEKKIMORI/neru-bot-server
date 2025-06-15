@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { IsArray } from 'class-validator';
 import { ChatMessageDto } from './chatMessage.dto';
 
