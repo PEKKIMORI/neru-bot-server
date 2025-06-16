@@ -1,7 +1,7 @@
 export interface PromptContext {
   // persona: string;
   /** The profile of the user making the request, for deep personalization. */
-  // userProfile: UserProfile;
+  userId: string;
   conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
   prompt: string;
 }
