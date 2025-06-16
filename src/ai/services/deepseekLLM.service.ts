@@ -104,13 +104,11 @@ export class deepseekLLM implements ILLMService {
   ): AsyncGenerator<string> {
     this.logger.log('Tool call detected. Executing tool...');
 
-    // Execute tool with userId
     const toolResult = this.functionsHandler.executeTool(
       toolCall,
       context.userId,
     );
 
-    // Build the final prompt using the dedicated method
     const finalPrompt = this._buildFinalPrompt(
       context.prompt,
       toolCall,
