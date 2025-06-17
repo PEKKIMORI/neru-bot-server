@@ -13,7 +13,7 @@ async function testFunctionCallingService(chatService: ILLMService) {
   // const chatService = new deepseekLLM(functionsHandler);
 
   const context: PromptContext = {
-    prompt: 'Get me a summary of my habits this week?',
+    prompt: 'Bananas are gay?',
     userId: 'user1332',
   };
 
