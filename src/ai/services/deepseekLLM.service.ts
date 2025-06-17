@@ -41,12 +41,14 @@ USER QUESTION:
 `;
 
 @Injectable()
-export class deepseekLLM implements ILLMService {
+export class deepseekLLM extends ILLMService {
   private readonly logger = new Logger(deepseekLLM.name);
   private readonly ollamaUrl = 'http://localhost:11434/api/generate';
   private readonly modelName = 'deepseek-r1:1.5b';
 
-  constructor(private readonly functionsHandler: AIFunctionsHandler) {}
+  constructor(readonly functionsHandler: AIFunctionsHandler) {
+    super(functionsHandler);
+  }
   async *generateResponse(
     context: PromptContext,
   ): AsyncGenerator<string, GenerationMetadata, void> {

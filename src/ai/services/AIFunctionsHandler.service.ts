@@ -2,6 +2,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ToolCall } from '../interfaces/ToolCall.interface';
 import { ToolResponse } from '../interfaces/ToolResponse.interface';
+import { IAIFunctionsHandler } from '../interfaces/IAIFunctionsHandler.service.interface';
 
 interface ToolCallPayload {
   tool: string;
@@ -9,7 +10,7 @@ interface ToolCallPayload {
 }
 
 @Injectable()
-export class AIFunctionsHandler {
+export class AIFunctionsHandler implements IAIFunctionsHandler {
   private readonly logger = new Logger(AIFunctionsHandler.name);
 
   constructor() {}

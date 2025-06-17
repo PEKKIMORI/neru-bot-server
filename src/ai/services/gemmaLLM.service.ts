@@ -42,12 +42,14 @@ Response: {"tool": "getWeeklyHabitSummary", "arguments": {}}</|system|>
 `;
 
 @Injectable()
-export class GemmaLLM implements ILLMService {
+export class GemmaLLM extends ILLMService {
   private readonly logger = new Logger(GemmaLLM.name);
   private readonly ollamaUrl = 'http://localhost:11434/api/generate';
   private readonly modelName = 'gemma3:1b-it-qat';
 
-  constructor(private readonly functionsHandler: AIFunctionsHandler) {}
+  constructor(readonly functionsHandler: AIFunctionsHandler) {
+    super(functionsHandler);
+  }
 
   async *generateResponse(
     context: PromptContext,
