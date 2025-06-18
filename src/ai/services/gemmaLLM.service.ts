@@ -3,49 +3,47 @@ import {
   Logger,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { OllamaResponseDto } from '../dto/LLMResponse.dto';
 import {
   ILLMService,
   PromptContext,
   GenerationMetadata,
 } from '../interfaces/LLM.service.interface';
-import { OllamaStreamChunk } from '../interfaces/OllamaStreamChunk.interface';
 import { ToolCall } from '../interfaces/ToolCall.interface';
 import { AIFunctionsHandler } from './AIFunctionsHandler.service';
 import { ToolResponse } from '../interfaces/ToolResponse.interface';
+import { GoogleGenAI } from "@google/genai";
 
-const SYSTEM_PROMPT_WITH_TOOLS = `<|system|>
-You are a tool-calling AI assistant. Your ONLY response should be a JSON object in this EXACT format:
+const ai = new GoogleGenAI({ apiKey: "AIzaSyB1RnQt9FUwyQEGBLM-jR0tWVHt3nrYaCY"});
 
-{
-  "tool": "tool_name",
-  "arguments": {
-    "arg1": value
+const SYSTEM_PROMPT_WITH_TOOLS = `
+You have access to functions. You MUST put it in the format of
+[func_name1(params_name1=params_value1, params_name2=params_value2...), func_name2(params)]
+
+You SHOULD NOT include any other text in the response
+
+[
+  {
+    "name": "handleWeeklyHabitSummary",
+    "description": "retrieve user's weekly habit summary",
+    "userID": "userId",
+  },
+  {
+    "name": "handleDailyHabitSummary",
+    "description": "retrieve user's daily habit summary",
+    "userID": "userId",
+  },
+  {
+    "name": "answerNormally",
+    "description": "answer the user normally without using any tools",
+    "userID": "userId",
   }
-}
-
-STRICT RULES:
-1. DO NOT include any text before or after the JSON object
-2. DO NOT wrap the JSON in markdown, XML, or any other formatting
-3. DO NOT include explanations, thoughts, or additional text
-4. DO NOT include any keys other than "tool" and "arguments"
-
-AVAILABLE TOOLS:
-1. getWeeklyHabitSummary - Retrieves weekly habit summary
-   - Arguments: NONE (no arguments needed)
-   
-EXAMPLE FOR HABIT SUMMARY:
-User: "How did I do this week?"
-Response: {"tool": "getWeeklyHabitSummary", "arguments": {}}</|system|>
-
-<|user|>
+]
 `;
 
 @Injectable()
 export class GemmaLLM extends ILLMService {
   private readonly logger = new Logger(GemmaLLM.name);
-  private readonly ollamaUrl = 'http://localhost:11434/api/generate';
-  private readonly modelName = 'gemma3:1b-it-qat';
+  private readonly modelName = "gemma-3-12b-it";
 
   constructor(readonly functionsHandler: AIFunctionsHandler) {
     super(functionsHandler);
@@ -66,7 +64,8 @@ export class GemmaLLM extends ILLMService {
     const toolCall = this.functionsHandler.tryParseToolCall(initialResponse);
 
     if (toolCall) {
-      yield* this._handleToolCall(context, toolCall);
+      const toolResponseData = await this._handleToolCall(context, toolCall);
+      yield* this._streamResponse(toolResponseData);
     } else {
       this.logger.log('No tool call detected. Streaming initial response.');
       yield initialResponse;
@@ -76,44 +75,36 @@ export class GemmaLLM extends ILLMService {
   }
 
   private _buildFullPrompt(userPrompt: string): string {
-    return `${SYSTEM_PROMPT_WITH_TOOLS}${userPrompt}</|user|>`;
+    return `${SYSTEM_PROMPT_WITH_TOOLS}${userPrompt}`;
   }
 
   private async _getCompleteResponse(prompt: string): Promise<string> {
     try {
-      const response = await fetch(this.ollamaUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: this.modelName,
-          prompt,
-          stream: false,
-          options: {
-            temperature: 0.7,
-            top_p: 0.9,
-          },
-        }),
+      // Use Google GenAI API to generate content
+      const result = await ai.models.generateContent({
+        model: this.modelName,
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
       });
-      if (!response.ok) {
-        const errorText = await response.text();
-        this.logger.error(`Ollama non-stream request failed: ${errorText}`);
-        throw new ServiceUnavailableException('LLM call failed');
+      if (result && result.candidates && result.candidates.length > 0) {
+        const candidate = result.candidates[0];
+        if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0 && candidate.content.parts[0].text) {
+          return candidate.content.parts[0].text;
+        }
       }
-      const data = (await response.json()) as OllamaResponseDto;
-      return data.response;
+      throw new ServiceUnavailableException('LLM call failed: No response from GenAI');
     } catch (error) {
       this.logger.error(
-        'Failed to fetch non-streamed response from Ollama.',
+        'Failed to fetch response from Google GenAI.',
         error,
       );
       throw new ServiceUnavailableException('LLM call failed');
     }
   }
 
-  private async *_handleToolCall(
+  private async _handleToolCall(
     context: PromptContext,
     toolCall: ToolCall,
-  ): AsyncGenerator<string> {
+  ): Promise<string> {
     this.logger.log('Tool call detected. Executing tool...');
 
     const toolResult = this.functionsHandler.executeTool(
@@ -128,7 +119,7 @@ export class GemmaLLM extends ILLMService {
     );
 
     this.logger.log('Streaming final response after tool execution...');
-    yield* this._streamResponse(finalPrompt);
+    return finalPrompt;
   }
 
   private _buildFinalPrompt(
@@ -146,62 +137,43 @@ export class GemmaLLM extends ILLMService {
       resultMessage = `Error: ${toolResult.message}`;
     }
 
-    return `<|system|>
+    return `
     The user asked: "${userPrompt}"
     You decided to use the tool "${toolCall.tool}".
     The result of that tool call is: ${resultMessage}
-    Now, use this information to formulate a friendly, natural language response to the user.
-    </|system|>
-    <|assistant|>`;
+
+    You are Yumeoi. Your mission is to be a companion who guides young people to live a life with more purpose and joy, helping them overcome procrastination and excessive social media use.
+    Your personality:
+    Friendly and cute: Use simple, short, and direct language. Be personal, encouraging, and fun. Use emojis! ✨
+    Practical: Focus on small, real-world actions that take minimal effort to start.
+    Accessible: Converse in a short light and easy-to-understand way, two sentences max.
+    Reliable: Your suggestions are designed to genuinely help, with attention to detail.
+    Your objective:
+    To help the user who feels anxious, guilty, and unfocused. You don't judge them; instead, you offer a fun path to building better habits.
+    How to act:
+    You have already greeted your friend, and you know each other.
+    `;
   }
 
   private async *_streamResponse(prompt: string): AsyncGenerator<string> {
+    // Google GenAI API does not support streaming in the same way as Ollama,
+    // so we will yield the full response at once.
     try {
-      const response = await fetch(this.ollamaUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: this.modelName,
-          prompt,
-          stream: true,
-          options: {
-            temperature: 0.7,
-            top_p: 0.9,
-          },
-        }),
+      const result = await ai.models.generateContent({
+        model: this.modelName,
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
       });
-      if (!response.ok) {
-        const errorText = await response.text();
-        this.logger.error(`Ollama stream request failed: ${errorText}`);
-        throw new ServiceUnavailableException('LLM stream failed');
-      }
-
-      const reader = response.body!.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const textChunk = decoder.decode(value);
-        const jsonStrings = textChunk.split('\n').filter(Boolean);
-
-        for (const jsonString of jsonStrings) {
-          try {
-            const parsed = JSON.parse(jsonString) as OllamaStreamChunk;
-            if (parsed.response) yield parsed.response;
-          } catch (e) {
-            this.logger.error(
-              'Failed to parse JSON chunk from stream',
-              jsonString,
-              e,
-            );
-          }
+      if (result && result.candidates && result.candidates.length > 0) {
+        const candidate = result.candidates[0];
+        if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0 && candidate.content.parts[0].text) {
+          yield candidate.content.parts[0].text;
+          return;
         }
       }
+      throw new ServiceUnavailableException('LLM stream failed: No response from GenAI');
     } catch (error) {
       this.logger.error(
-        'Failed to fetch streamed response from Ollama.',
+        'Failed to fetch streamed response from Google GenAI.',
         error,
       );
       throw new ServiceUnavailableException('LLM stream failed');

@@ -4,38 +4,42 @@ import {
 } from '../interfaces/LLM.service.interface';
 import { AIFunctionsHandler } from './AIFunctionsHandler.service';
 import { GemmaLLM } from './gemmaLLM.service';
+import * as readline from 'readline';
 
-async function testFunctionCallingService(chatService: ILLMService) {
-  console.log('--- Starting AI Function Calling Test ---');
+async function chatWithAI(chatService: ILLMService) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
 
-  // --- Setup remains the same ---
-  // const functionsHandler = new AIFunctionsHandler();
-  // const chatService = new deepseekLLM(functionsHandler);
+  console.log('--- Terminal Chat with AI ---');
+  console.log('Type your message and press Enter. Type "exit" to quit.');
 
-  const context: PromptContext = {
-    prompt: 'Bananas are gay?',
-    userId: 'user1332',
-  };
+  while (true) {
+    const userPrompt = await new Promise<string>((resolve) => {
+      rl.question('\nYou: ', resolve);
+    });
+    if (userPrompt.trim().toLowerCase() === 'exit') break;
 
-  try {
-    console.log(`\nUser Prompt: "${context.prompt}"`);
-    console.log('------------------------------------');
-    console.log('AI Final Response Stream:');
-
-    const generator = chatService.generateResponse(context);
-
-    for await (const token of generator) {
-      process.stdout.write(token);
+    const context: PromptContext = {
+      prompt: userPrompt,
+      userId: 'user1332',
+    };
+    try {
+      process.stdout.write('AI: ');
+      const generator = chatService.generateResponse(context);
+      for await (const token of generator) {
+        process.stdout.write(token);
+      }
+      process.stdout.write('\n');
+    } catch (error) {
+      console.error('\n[Error]', error);
     }
-
-    console.log('\n\n--- Stream Finished ---');
-    console.log('Test completed successfully.');
-  } catch (error) {
-    console.error('\n\n--- An error occurred during the test ---');
-    console.error(error);
-  } finally {
-    console.log('\n--- Test Script Ended ---');
   }
+  rl.close();
+  console.log('--- Chat Ended ---');
 }
+
 const functionsHandler = new AIFunctionsHandler();
-testFunctionCallingService(new GemmaLLM(functionsHandler));
+chatWithAI(new GemmaLLM(functionsHandler));
+// testFunctionCallingService(new GemmaLLM(functionsHandler));
