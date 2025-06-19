@@ -1,0 +1,13 @@
+services:
+  redis:
+    image: 'redis:7-alpine' 
+    container_name: 'habit-app-redis' 
+    ports:
+      - '6379:6379' 
+    volumes:
+      - redis-data:/data # Creates a named volume to persist Redis data even if the container is removed
+    command: redis-server --save 20 1 --loglevel warning # Command to start Redis with persistence options (save to disk if at least 1 key changes in 20 seconds)
+    restart: always 
+
+volumes:
+  redis-data:
