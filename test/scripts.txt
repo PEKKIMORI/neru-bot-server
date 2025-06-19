@@ -1,0 +1,3 @@
+pnpx ts-node src/ai/services/teste.ts
+
+pnpx ts-node src/stargazer/services/testImage.ts src/stargazer/services/notebook.jpg "Put the notebook and pencil on the table"

@@ -18,6 +18,52 @@ export class AIFunctionsHandler implements IAIFunctionsHandler {
   public tryParseToolCall(responseText: string): ToolCall | null {
     this.logger.log('Attempting to parse tool call from response');
 
+    // Handle [func_name(params), ...] format
+    const bracketMatch = responseText.match(/^\s*\[(.*)\]\s*$/s);
+    if (bracketMatch) {
+      const callsStr = bracketMatch[1];
+      // Split by '),', but keep the closing parenthesis
+      const callRegex = /([a-zA-Z0-9_]+)\(([^)]*)\)/g;
+      let match;
+      while ((match = callRegex.exec(callsStr)) !== null) {
+        const tool = match[1];
+        const argsStr = match[2];
+        const args: { [key: string]: any } = {};
+        if (argsStr.trim()) {
+          // Split by comma, handle key=value pairs
+          argsStr.split(',').forEach(pair => {
+            const [key, value] = pair.split('=');
+            if (key && value !== undefined) {
+              // Remove possible quotes from value
+              const cleanValue = value.trim().replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+              args[key.trim()] = cleanValue;
+            }
+          });
+        }
+        this.logger.log(`Parsed tool call from bracket format: ${tool}`);
+        return { tool, arguments: args };
+      }
+    }
+
+    // Handle single func_name(params) format (no brackets)
+    const singleCallMatch = responseText.match(/^\s*([a-zA-Z0-9_]+)\(([^)]*)\)\s*$/);
+    if (singleCallMatch) {
+      const tool = singleCallMatch[1];
+      const argsStr = singleCallMatch[2];
+      const args: { [key: string]: any } = {};
+      if (argsStr.trim()) {
+        argsStr.split(',').forEach(pair => {
+          const [key, value] = pair.split('=');
+          if (key && value !== undefined) {
+            const cleanValue = value.trim().replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+            args[key.trim()] = cleanValue;
+          }
+        });
+      }
+      this.logger.log(`Parsed tool call from single function format: ${tool}`);
+      return { tool, arguments: args };
+    }
+
     const cleanedText = responseText
       .trim()
 
@@ -63,8 +109,10 @@ export class AIFunctionsHandler implements IAIFunctionsHandler {
 
     try {
       switch (toolCall.tool) {
-        case 'getWeeklyHabitSummary':
+        case 'handleWeeklyHabitSummary': // alias for AI output
           return this.handleWeeklyHabitSummary(userId);
+        case 'answerNormally':
+          return this.answerNormally(userId);
 
         default:
           return this.handleUnknownTool(toolCall.tool);
@@ -89,6 +137,16 @@ export class AIFunctionsHandler implements IAIFunctionsHandler {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       ...(data && { data }),
     };
+  }
+
+  private answerNormally(userId: string): ToolResponse {
+    // In a real application, you would fetch user data or perform some logic
+    const responseData = {
+      userId,
+      message: 'This is a normal response without tool usage.',
+    };
+
+    return this.createSuccessResponse('Normal response generated', responseData);
   }
 
   private handleWeeklyHabitSummary(userId: string): ToolResponse {
