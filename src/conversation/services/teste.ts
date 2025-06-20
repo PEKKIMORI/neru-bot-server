@@ -16,8 +16,8 @@ async function testConversationContext(
 
   console.log('--- Starting Manual Conversation Context Test ---');
 
-  const testUserId = 'manual-test-user-002';
-  const testContext = 'name-remember-manual-test';
+  const testUserId = 'manual-test-user-sakuma';
+  const testContext = 'user-name-remember-test';
 
   try {
     // Clean the DB for a fresh start
@@ -25,9 +25,8 @@ async function testConversationContext(
 
     logger.log(`Using User ID: ${testUserId}, Context: ${testContext}\n`);
 
-    // --- Message 1: Tell the AI its name ---
-    const firstMessage =
-      'Hello there. I want you to act as a character named Atlas.';
+    // --- Message 1: Tell the AI the user's name ---
+    const firstMessage = 'Hi there. My name is Sakuma.';
     console.log(`> User: ${firstMessage}`);
     const firstReply = await managerService.getAiReply(
       testUserId,
@@ -38,8 +37,8 @@ async function testConversationContext(
 
     console.log('\n--- Asking the follow-up question... ---\n');
 
-    // --- Message 2: Ask the AI what its name is ---
-    const secondMessage = 'What is your name?';
+    // --- Message 2: Ask the AI what the user's name is ---
+    const secondMessage = 'What is my name?';
     console.log(`> User: ${secondMessage}`);
     const finalReply = await managerService.getAiReply(
       testUserId,
@@ -53,7 +52,7 @@ async function testConversationContext(
     console.log(`< AI: ${finalReply}`);
     console.log('-------------------------------------------');
     console.log(
-      '(Please verify if the AI correctly remembered its name is "Atlas".)',
+      `(Please verify if the AI correctly remembered the user's name is "Sakuma".)`,
     );
   } catch (error) {
     console.error('\n\n--- An error occurred during the test ---');
@@ -66,12 +65,11 @@ async function testConversationContext(
 }
 
 // --- Manual Dependency Injection Chain ---
-// This is what NestJS's DI container does for you automatically.
-// Here, we do it by hand.
+// This part remains unchanged as the service structure is the same.
 
-// 1. Bottom-level dependencies (no dependencies of their own)
+// 1. Bottom-level dependencies
 const functionsHandler = new AIFunctionsHandler();
-const redisClient = new Redis({ host: 'localhost', port: 6379 }); // Use a different DB for safety
+const redisClient = new Redis({ host: 'localhost', port: 6379, db: 2 });
 
 // 2. Services that depend on the bottom-level instances
 const llmService: ILLMService = new GemmaLLM(functionsHandler);

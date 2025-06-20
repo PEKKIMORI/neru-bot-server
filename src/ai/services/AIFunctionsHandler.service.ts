@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable, Logger } from '@nestjs/common';
 import { ToolCall } from '../interfaces/ToolCall.interface';
@@ -31,11 +34,14 @@ export class AIFunctionsHandler implements IAIFunctionsHandler {
         const args: { [key: string]: any } = {};
         if (argsStr.trim()) {
           // Split by comma, handle key=value pairs
-          argsStr.split(',').forEach(pair => {
+          argsStr.split(',').forEach((pair) => {
             const [key, value] = pair.split('=');
             if (key && value !== undefined) {
               // Remove possible quotes from value
-              const cleanValue = value.trim().replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+              const cleanValue = value
+                .trim()
+                .replace(/^"|"$/g, '')
+                .replace(/^'|'$/g, '');
               args[key.trim()] = cleanValue;
             }
           });
@@ -46,16 +52,21 @@ export class AIFunctionsHandler implements IAIFunctionsHandler {
     }
 
     // Handle single func_name(params) format (no brackets)
-    const singleCallMatch = responseText.match(/^\s*([a-zA-Z0-9_]+)\(([^)]*)\)\s*$/);
+    const singleCallMatch = responseText.match(
+      /^\s*([a-zA-Z0-9_]+)\(([^)]*)\)\s*$/,
+    );
     if (singleCallMatch) {
       const tool = singleCallMatch[1];
       const argsStr = singleCallMatch[2];
       const args: { [key: string]: any } = {};
       if (argsStr.trim()) {
-        argsStr.split(',').forEach(pair => {
+        argsStr.split(',').forEach((pair) => {
           const [key, value] = pair.split('=');
           if (key && value !== undefined) {
-            const cleanValue = value.trim().replace(/^"|"$/g, '').replace(/^'|'$/g, '');
+            const cleanValue = value
+              .trim()
+              .replace(/^"|"$/g, '')  
+              .replace(/^'|'$/g, '');
             args[key.trim()] = cleanValue;
           }
         });
@@ -134,7 +145,6 @@ export class AIFunctionsHandler implements IAIFunctionsHandler {
     return {
       status: 'success',
       message,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       ...(data && { data }),
     };
   }
@@ -146,7 +156,10 @@ export class AIFunctionsHandler implements IAIFunctionsHandler {
       message: 'This is a normal response without tool usage.',
     };
 
-    return this.createSuccessResponse('Normal response generated', responseData);
+    return this.createSuccessResponse(
+      'Normal response generated',
+      responseData,
+    );
   }
 
   private handleWeeklyHabitSummary(userId: string): ToolResponse {

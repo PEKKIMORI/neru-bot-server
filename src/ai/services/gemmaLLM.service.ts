@@ -11,9 +11,11 @@ import {
 import { ToolCall } from '../interfaces/ToolCall.interface';
 import { AIFunctionsHandler } from './AIFunctionsHandler.service';
 import { ToolResponse } from '../interfaces/ToolResponse.interface';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({ apiKey: "AIzaSyB1RnQt9FUwyQEGBLM-jR0tWVHt3nrYaCY"});
+const ai = new GoogleGenAI({
+  apiKey: 'AIzaSyB1RnQt9FUwyQEGBLM-jR0tWVHt3nrYaCY',
+});
 
 const SYSTEM_PROMPT_WITH_TOOLS = `
 You have access to functions. You MUST put it in the format of
@@ -43,7 +45,7 @@ You SHOULD NOT include any other text in the response
 @Injectable()
 export class GemmaLLM extends ILLMService {
   private readonly logger = new Logger(GemmaLLM.name);
-  private readonly modelName = "gemma-3-12b-it";
+  private readonly modelName = 'gemma-3-12b-it';
 
   constructor(readonly functionsHandler: AIFunctionsHandler) {
     super(functionsHandler);
@@ -64,7 +66,7 @@ export class GemmaLLM extends ILLMService {
     const toolCall = this.functionsHandler.tryParseToolCall(initialResponse);
 
     if (toolCall) {
-      const toolResponseData = await this._handleToolCall(context, toolCall);
+      const toolResponseData = this._handleToolCall(context, toolCall);
       yield* this._streamResponse(toolResponseData);
     } else {
       this.logger.log('No tool call detected. Streaming initial response.');
@@ -87,24 +89,25 @@ export class GemmaLLM extends ILLMService {
       });
       if (result && result.candidates && result.candidates.length > 0) {
         const candidate = result.candidates[0];
-        if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0 && candidate.content.parts[0].text) {
+        if (
+          candidate.content &&
+          candidate.content.parts &&
+          candidate.content.parts.length > 0 &&
+          candidate.content.parts[0].text
+        ) {
           return candidate.content.parts[0].text;
         }
       }
-      throw new ServiceUnavailableException('LLM call failed: No response from GenAI');
-    } catch (error) {
-      this.logger.error(
-        'Failed to fetch response from Google GenAI.',
-        error,
+      throw new ServiceUnavailableException(
+        'LLM call failed: No response from GenAI',
       );
+    } catch (error) {
+      this.logger.error('Failed to fetch response from Google GenAI.', error);
       throw new ServiceUnavailableException('LLM call failed');
     }
   }
 
-  private async _handleToolCall(
-    context: PromptContext,
-    toolCall: ToolCall,
-  ): Promise<string> {
+  private _handleToolCall(context: PromptContext, toolCall: ToolCall): string {
     this.logger.log('Tool call detected. Executing tool...');
 
     const toolResult = this.functionsHandler.executeTool(
@@ -156,8 +159,6 @@ export class GemmaLLM extends ILLMService {
   }
 
   private async *_streamResponse(prompt: string): AsyncGenerator<string> {
-    // Google GenAI API does not support streaming in the same way as Ollama,
-    // so we will yield the full response at once.
     try {
       const result = await ai.models.generateContent({
         model: this.modelName,
@@ -165,12 +166,19 @@ export class GemmaLLM extends ILLMService {
       });
       if (result && result.candidates && result.candidates.length > 0) {
         const candidate = result.candidates[0];
-        if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0 && candidate.content.parts[0].text) {
+        if (
+          candidate.content &&
+          candidate.content.parts &&
+          candidate.content.parts.length > 0 &&
+          candidate.content.parts[0].text
+        ) {
           yield candidate.content.parts[0].text;
           return;
         }
       }
-      throw new ServiceUnavailableException('LLM stream failed: No response from GenAI');
+      throw new ServiceUnavailableException(
+        'LLM stream failed: No response from GenAI',
+      );
     } catch (error) {
       this.logger.error(
         'Failed to fetch streamed response from Google GenAI.',

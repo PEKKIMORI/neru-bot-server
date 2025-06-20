@@ -10,6 +10,7 @@ import { AIFunctionsHandler } from './AIFunctionsHandler.service';
 import { ToolResponse } from '../interfaces/ToolResponse.interface';
 import { ToolCall } from '../interfaces/ToolCall.interface';
 import { IAIFunctionsHandler } from '../interfaces/IAIFunctionsHandler.service.interface';
+import { GemmaLLM } from './gemmaLLM.service';
 
 // --- Improved Mocking Helpers ---
 
@@ -81,16 +82,14 @@ class MockAIFunctionsHandler implements IAIFunctionsHandler {
 }
 
 describe('deepseekLLM', () => {
-  let service: deepseekLLM;
+  let service: GemmaLLM;
   let functionsHandler: MockAIFunctionsHandler;
   const mockLogger = { log: vi.fn(), error: vi.fn() };
 
   beforeEach(() => {
     functionsHandler = new MockAIFunctionsHandler();
     // The cast is okay here since we control the mock's implementation
-    service = new deepseekLLM(
-      functionsHandler as unknown as AIFunctionsHandler,
-    );
+    service = new GemmaLLM(functionsHandler as unknown as AIFunctionsHandler);
 
     // Spy on the logger within the instantiated service
     vi.spyOn(service['logger'], 'log').mockImplementation(mockLogger.log);
