@@ -1,30 +1,64 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Neru-bot
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+![Neru-bot Logo](NERU.jpeg)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## O que é o Neru-bot?
 
-## Description
+O Neru-bot foi projetado para ser um companheiro que guia os jovens a viverem uma vida com mais propósito e alegria. Ele aborda os desafios do vício em redes sociais, da procrastinação e dos sentimentos negativos resultantes, como ansiedade e frustração.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### O Problema
+
+Os jovens passam muito tempo em seus celulares, o que leva à falta de produtividade e a emoções negativas. As soluções existentes muitas vezes falham por não abordarem as causas profundas, como a necessidade de conexão social ou a dificuldade em manter novos hábitos.
+
+### Nosso Objetivo
+
+Oferecer um companheiro que ajude os usuários a construir uma vida com propósito e alegria.
+
+## Valores Fundamentais
+
+*   **Praticidade**: Reduzir o atrito, minimizar o texto e as ações do usuário, e usar mais imagens.
+*   **Intimidade**: Ser pessoal, único e amigável. Customizável e personalizado.
+*   **Acessibilidade**: Utilizável por todos, conversacional e fácil de entender.
+*   **Qualidade**: Atenção aos detalhes, com base em pesquisas e métodos empíricos.
+*   **Diversão**: Designs envolventes, bonitos e criativos.
+
+## Funcionalidades
+
+O Neru-bot foi projetado para ajudar os usuários em quatro áreas principais:
+
+1.  **Reduzir o Uso de Aplicativos Dopaminérgicos**:
+    *   Bloqueio de aplicativos por tempo e horário.
+    *   "Nudges" e neutralização de recompensas excessivas de outros aplicativos (ex: modo de tons de cinza).
+    *   Oferecer maneiras alternativas de satisfazer necessidades como conexão social e curiosidade.
+
+2.  **Promover Atividades Produtivas**:
+    *   Descobrir e se envolver em hobbies e interesses criativos.
+    *   Definir e trabalhar em direção a metas pessoais com funcionalidades como listas de tarefas e calendários.
+    *   Ferramentas para ajudar os usuários a começarem tarefas facilmente.
+
+3.  **Melhorar o Bem-Estar**:
+    *   Promover hábitos de sono saudáveis.
+    *   Incentivar exercícios diários, hidratação e pequenas rotinas, como arrumar a cama.
+
+4.  **Manter a Motivação e o Engajamento**:
+    *   Um sistema de dicas, rotinas e recompensas para construir hábitos.
+    *   Funcionalidades como um sistema de Gacha, insights diários, colagens de fotos e gamificação.
+
+## Telas do Aplicativo
+
+1.  **Produtividade**: Gerencie tarefas, hobbies e metas.
+2.  **Quests**: Configure definições, acompanhe conquistas e complete missões.
+3.  **Agente de IA**: Um companheiro de IA para introspecção e descoberta de novos interesses.
+4.  **Recompensas**: Colete itens através de um sistema de Gacha e compita com amigos.
+5.  **Journal**: Um diário dos sonhos com colagens de fotos, recomendações semanais e estatísticas de progresso.
+
+## TO-DO
+
+1.  Organizar a estrutura da aplicação.
+2.  Desenvolver os componentes de IA.
+3.  Desenvolver as principais funcionalidades da aplicação.
+4.  Criar o site do projeto.
+5.  Idealização de um robô físico companheiro.
 
 ## Project setup
 
@@ -56,44 +90,15 @@ $ pnpm run test:e2e
 
 # test coverage
 $ pnpm run test:cov
+
+pnpx ts-node src/ai/services/teste.ts
+
+pnpx ts-node src/stargazer/services/testImage.ts src/stargazer/services/notebook.jpg "Put the notebook and pencil on the table"
 ```
 
 ## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
 
 ```bash
 $ pnpm install -g mau
 $ mau deploy
 ```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
